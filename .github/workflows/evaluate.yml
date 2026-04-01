@@ -1,4 +1,4 @@
-name: SWE-bench Evaluation (x86) — Full 300 Tasks
+name: SWE-bench Evaluation (x86) — Full 300 Tasks (Pre-built Images)
 on:
   push:
     branches: [main]
@@ -13,15 +13,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          sudo apt-get clean
+          df -h
+
       - name: Install SWE-bench
         run: pip install swebench datasets
-      - name: Evaluate optimized patches (300 tasks)
+
+      - name: Evaluate optimized patches (300 tasks, pre-built images)
         run: |
           python -m swebench.harness.run_evaluation \
             --predictions_path predictions/optimized.jsonl \
             --max_workers 4 \
             --dataset_name princeton-nlp/SWE-bench_Lite \
+            --cache_level instance \
             --run_id seabugs-optimized-300
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
@@ -37,15 +47,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          sudo apt-get clean
+          df -h
+
       - name: Install SWE-bench
         run: pip install swebench datasets
-      - name: Evaluate baseline patches (300 tasks)
+
+      - name: Evaluate baseline patches (300 tasks, pre-built images)
         run: |
           python -m swebench.harness.run_evaluation \
             --predictions_path predictions/baseline.jsonl \
             --max_workers 4 \
             --dataset_name princeton-nlp/SWE-bench_Lite \
+            --cache_level instance \
             --run_id seabugs-baseline-300
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
