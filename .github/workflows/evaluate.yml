@@ -1,4 +1,4 @@
-name: SWE-bench Evaluation (x86)
+name: SWE-bench Evaluation (x86) — Full 300 Tasks
 on:
   push:
     branches: [main]
@@ -7,7 +7,7 @@ on:
 jobs:
   evaluate-optimized:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,22 +15,23 @@ jobs:
           python-version: '3.12'
       - name: Install SWE-bench
         run: pip install swebench datasets
-      - name: Evaluate optimized patches
+      - name: Evaluate optimized patches (300 tasks)
         run: |
           python -m swebench.harness.run_evaluation \
             --predictions_path predictions/optimized.jsonl \
-            --max_workers 1 \
+            --max_workers 4 \
             --dataset_name princeton-nlp/SWE-bench_Lite \
-            --run_id seabugs-optimized-8
+            --run_id seabugs-optimized-300
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: optimized-results
-          path: logs/run_evaluation/
+          path: logs/
 
   evaluate-baseline:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,15 +39,16 @@ jobs:
           python-version: '3.12'
       - name: Install SWE-bench
         run: pip install swebench datasets
-      - name: Evaluate baseline patches
+      - name: Evaluate baseline patches (300 tasks)
         run: |
           python -m swebench.harness.run_evaluation \
             --predictions_path predictions/baseline.jsonl \
-            --max_workers 1 \
+            --max_workers 4 \
             --dataset_name princeton-nlp/SWE-bench_Lite \
-            --run_id seabugs-baseline-8
+            --run_id seabugs-baseline-300
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: baseline-results
-          path: logs/run_evaluation/
+          path: logs/
